@@ -5,12 +5,19 @@
 #include "widgets/weatherWidget.h"
 #include "widgets/webDataWidget.h"
 #include <Arduino.h>
+#include <Wire.h>
 #include <Button.h>
 #include <globalTime.h>
 #include <config.h>
 #include <widgets/stockWidget.h>
 
+#define I2C_FREQUENCY 100000
+#define SDA_1 GPIO_NUM_35
+#define SCL_1 GPIO_NUM_34
+
 TFT_eSPI tft = TFT_eSPI();
+
+// TwoWire I2C_1 = TwoWire(1);
 
 // Button states
 bool lastButtonOKState = HIGH;
@@ -40,6 +47,37 @@ bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) 
 
 ScreenManager* sm;
 WidgetSet* widgetSet;
+
+// void i2c_scanner () {
+//   byte error, address;
+//   int nDevices;
+
+//   Serial.println("Scanning...");
+
+//   nDevices = 0;
+//   for (address = 1; address < 127; address++) {
+//     I2C_1.beginTransmission(address);
+//     error = I2C_1.endTransmission();
+
+//     if (error == 0) {
+//       Serial.print("I2C device found at address 0x");
+//       if (address < 16)
+//         Serial.print("0");
+//       Serial.print(address, HEX);
+//       Serial.println("  !");
+//       nDevices++;
+//     } else if (error == 4) {
+//       Serial.print("Unknown error at address 0x");
+//       if (address < 16)
+//         Serial.print("0");
+//       Serial.println(address, HEX);
+//     }
+//   }
+//   if (nDevices == 0)
+//     Serial.println("No I2C devices found\n");
+//   else
+//     Serial.println("done\n");
+// }
 
 void setup() {
 
@@ -87,6 +125,10 @@ void setup() {
 #ifdef WEB_DATA_STOCK_WIDGET_URL
   widgetSet->add(new WebDataWidget(*sm, WEB_DATA_STOCK_WIDGET_URL));
 #endif
+
+  // I2C_1.begin(SDA_1, SCL_1, I2C_FREQUENCY);
+  Wire.begin(SDA_1, SCL_1);
+
 }
 
 void loop() {
@@ -116,5 +158,8 @@ void loop() {
 
     widgetSet->updateCurrent();
     widgetSet->drawCurrent();
+
+    // i2c_scanner();
+
   }
 }
