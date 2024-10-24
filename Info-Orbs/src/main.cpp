@@ -38,6 +38,8 @@ bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap) 
     return 1;
 }
 
+static uint auto_switch_timer = 0;
+
 ScreenManager* sm;
 WidgetSet* widgetSet;
 
@@ -90,6 +92,7 @@ void setup() {
 }
 
 void loop() {
+
   if (wifiWidget->isConnected() == false) {
     wifiWidget->update();
     wifiWidget->draw();
@@ -112,6 +115,12 @@ void loop() {
     if (buttonRight.pressed()) {
       Serial.println("Right button pressed");
       widgetSet->next();
+    }
+
+    // check if it is time to switch screens
+    if (millis() - auto_switch_timer > AUTO_SWITCH_TIME) {
+      widgetSet->next();
+      auto_switch_timer = millis();
     }
 
     widgetSet->updateCurrent();
